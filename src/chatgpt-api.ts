@@ -1,11 +1,10 @@
 import Keyv from 'keyv'
+import fetch1 from 'node-fetch'
 import pTimeout from 'p-timeout'
 import QuickLRU from 'quick-lru'
 import { v4 as uuidv4 } from 'uuid'
 
-import * as tokenizer from './tokenizer'
 import * as types from './types'
-import { fetch as globalFetch } from './fetch'
 import { fetchSSE } from './fetch-sse'
 
 const CHATGPT_MODEL = 'gpt-3.5-turbo'
@@ -58,13 +57,13 @@ export class ChatGPTAPI {
       maxResponseTokens = 1000,
       getMessageById,
       upsertMessage,
-      fetch = globalFetch
+      fetch = fetch1
     } = opts
 
     this._apiKey = apiKey
     this._apiBaseUrl = apiBaseUrl
     this._debug = !!debug
-    this._fetch = fetch
+    this._fetch = fetch as any
 
     this._completionParams = {
       model: CHATGPT_MODEL,
@@ -345,32 +344,7 @@ export class ChatGPTAPI {
     let numTokens = 0
 
     do {
-      const prompt = nextMessages
-        .reduce((prompt, message) => {
-          switch (message.role) {
-            case 'system':
-              return [prompt, `Instructions:\n${message.content}`]
-            case 'user':
-              return [prompt, `${userLabel}:\n${message.content}`]
-            default:
-              return [prompt, `${assistantLabel}:\n${message.content}`]
-          }
-        }, [])
-        .join('\n\n')
-
-      const nextNumTokensEstimate = await this._getTokenCount(prompt)
-      const isValidPrompt = nextNumTokensEstimate <= maxNumTokens
-
-      if (prompt && !isValidPrompt) {
-        break
-      }
-
       messages = nextMessages
-      numTokens = nextNumTokensEstimate
-
-      if (!isValidPrompt) {
-        break
-      }
 
       if (!parentMessageId) {
         break
@@ -405,13 +379,6 @@ export class ChatGPTAPI {
     )
 
     return { messages, maxTokens, numTokens }
-  }
-
-  protected async _getTokenCount(text: string) {
-    // TODO: use a better fix in the tokenizer
-    text = text.replace(/<\|endoftext\|>/g, '')
-
-    return tokenizer.encode(text).length
   }
 
   protected async _defaultGetMessageById(

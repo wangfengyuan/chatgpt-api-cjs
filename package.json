@@ -1,18 +1,17 @@
 {
-  "name": "chatgpt",
-  "version": "5.0.6",
-  "description": "Node.js client for the official ChatGPT API.",
-  "author": "Travis Fischer <travis@transitivebullsh.it>",
-  "repository": "transitive-bullshit/chatgpt-api",
+  "name": "chatgpt-api-cjs",
+  "version": "5.0.15",
+  "description": "Node.js client for the official ChatGPT API.(commonjs version)",
+  "author": "wangfengyuan",
+  "repository": "wangfengyuan/chatgpt-api-cjs",
   "license": "MIT",
-  "type": "module",
   "source": "./src/index.ts",
   "types": "./build/index.d.ts",
+  "type": "commonjs",
+  "main": "./build/index.js",
   "exports": {
     ".": {
-      "import": "./build/index.js",
-      "types": "./build/index.d.ts",
-      "default": "./build/index.js"
+      "require": "./build/index.js"
     }
   },
   "files": [
@@ -42,9 +41,11 @@
     "conf": "^11.0.1",
     "eventsource-parser": "^0.0.5",
     "keyv": "^4.5.2",
+    "node-fetch": "^3.3.0",
     "p-timeout": "^6.1.1",
     "quick-lru": "^6.1.1",
     "read-pkg-up": "^9.1.0",
+    "undici": "^5.20.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
